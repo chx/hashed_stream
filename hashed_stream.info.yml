@@ -1,0 +1,4 @@
+name: Hashed stream wrappers
+description: Hashed stream wrappers
+core: 8.x
+type: module
