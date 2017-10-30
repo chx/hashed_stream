@@ -5,7 +5,9 @@ namespace Drupal\hashed_stream\StreamWrapper;
 trait HashedStreamTrait {
 
   /**
-   * @return
+   * @param string $uri
+   *
+   * @return string
    *   Something like ab/cd -- two levels of directories, 255 each level.
    */
   protected function getHashDir($uri) {
@@ -23,9 +25,9 @@ trait HashedStreamTrait {
       $uri = $this->uri;
     }
 
-    $scheme = file_uri_scheme($uri);
     $path = $this->getDirectoryPath();
-    if ($uri !== "$scheme://") {
+    // Do not double hash.
+    if (!preg_match('#://($|([a-f0-9]{2}(?:/|$)){1,2})#', $uri)) {
       $path .= '/' . $this->getHashDir($uri);
     }
     $path .= '/' . $this->getTarget($uri);
@@ -34,7 +36,7 @@ trait HashedStreamTrait {
     // filesystem stream wrapper URI, in which case this local stream acts like
     // a proxy. realpath() is not supported by vfsStream, because a virtual
     // file system does not have a real filepath.
-    if ($scheme !== 'vfs') {
+    if (strpos($path, 'vfs://') === 0) {
       return $path;
     }
 
